@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+function print_useage {
+  echo "USEAGE: remote-tail host file [file list]"
+  exit 1
+}
+
+if [ "X${1}" == "X" ]; then
+  print_useage
+fi
+
+if [ "X${2}" == "X" ]; then
+  print_useage
+fi
+
+if [ "X${SSH_USER}" == "X" ]; then
+  SSH_USER=ubuntu
+fi
+
+SSH_CMD="ssh "
+
+if [ "X${SSH_OPTS}" != "X" ]; then
+  SSH_CMD="${SSH_CMD}${SSH_OPTS} "
+fi
+
+SKIP_FIRST=0
+
+for ARG in "$@"; do
+  if [ $SKIP_FIRST -eq 1 ]; then
+    ARGS="$ARGS $ARG"
+  fi
+  SKIP_FIRST=1
+done
+
+${SSH_CMD} ${SSH_USER}@${1} <<EOF
+tail -F $ARGS
+EOF
